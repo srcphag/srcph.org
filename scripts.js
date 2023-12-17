@@ -1,6 +1,6 @@
 const logo = document.getElementById("logo");
 const gridItems = document.querySelectorAll(".work");
-const numRows = 3;
+const numRows = 5;
 const numCols = 6;
 
 //Smooth Animation
