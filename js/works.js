@@ -27,78 +27,114 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
     // console.log("videoUrl", imageUrls[0]);
 
     if (mq3.matches) {
-      const imageListContainer = document.getElementById("imageList");
+      // const imageListContainer = document.getElementById("imageList");
 
-      let currentImageIndex = 0;
+      // let currentImageIndex = 0;
 
-      function updateActiveItem(index) {
-        const listItems = imageListContainer.querySelectorAll("li");
-        listItems.forEach((item) => {
-          item.classList.remove("active");
-        });
-        listItems[index].classList.add("active");
-      }
+      // function updateActiveItem(index) {
+      //   const listItems = imageListContainer.querySelectorAll("li");
+      //   listItems.forEach((item) => {
+      //     item.classList.remove("active");
+      //   });
+      //   listItems[index].classList.add("active");
+      // }
 
-      function showNextImage() {
-        currentImageIndex = (currentImageIndex + 1) % imageUrls.length;
-        updateActiveItem(currentImageIndex);
-        // console.log(imageUrls[currentImageIndex]);
-        CABLES.patch.setVariable("imageUrl", imageUrls[currentImageIndex]);
-      }
+      // function showNextImage() {
+      //   currentImageIndex = (currentImageIndex + 1) % imageUrls.length;
+      //   updateActiveItem(currentImageIndex);
+      //   // console.log(imageUrls[currentImageIndex]);
+      //   CABLES.patch.setVariable("imageUrl", imageUrls[currentImageIndex]);
+      // }
 
-      // Iterate through the arrays and create list items
-      for (let i = 0; i < imageUrls.length; i++) {
-        const listItem = document.createElement("li");
+      // // Iterate through the arrays and create list items
+      // for (let i = 0; i < imageUrls.length; i++) {
+      //   const listItem = document.createElement("li");
 
-        const anchor = document.createElement("a");
-        anchor.setAttribute("data-url", imageUrls[i]); // Store URL in a custom attribute
-        // anchor.textContent = imageAlt[i];
+      //   const anchor = document.createElement("a");
+      //   anchor.setAttribute("data-url", imageUrls[i]); // Store URL in a custom attribute
+      //   // anchor.textContent = imageAlt[i];
 
-        listItem.appendChild(anchor);
-        imageListContainer.appendChild(listItem);
+      //   listItem.appendChild(anchor);
+      //   imageListContainer.appendChild(listItem);
 
-        anchor.addEventListener("click", (event) => {
-          event.preventDefault();
-          const clickedImageUrl = event.target.getAttribute("data-url"); // Retrieve URL from custom attribute
-          currentImageIndex = imageUrls.indexOf(clickedImageUrl);
-          updateActiveItem(currentImageIndex);
-          CABLES.patch.setVariable("imageUrl", clickedImageUrl);
-        });
-      }
-      updateActiveItem(currentImageIndex);
+      //   anchor.addEventListener("click", (event) => {
+      //     event.preventDefault();
+      //     const clickedImageUrl = event.target.getAttribute("data-url"); // Retrieve URL from custom attribute
+      //     currentImageIndex = imageUrls.indexOf(clickedImageUrl);
+      //     updateActiveItem(currentImageIndex);
+      //     CABLES.patch.setVariable("imageUrl", clickedImageUrl);
+      //   });
+      // }
+      // updateActiveItem(currentImageIndex);
 
-      // Function to handle intersection observer callback
-      function handleIntersection(entries) {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const url = entry.target.dataset.media;
-            const index = imageUrls.indexOf(url);
-            if (index !== -1) {
-              currentImageIndex = index;
-              updateActiveItem(currentImageIndex);
-              // CABLES.patch.setVariable("imageUrl", imageUrls[currentImageIndex]);
-            }
-          }
-        });
-        console.log(imageUrls[currentImageIndex]);
-      }
+      // // Function to handle intersection observer callback
+      // function handleIntersection(entries) {
+      //   entries.forEach((entry) => {
+      //     if (entry.isIntersecting) {
+      //       const url = entry.target.dataset.media;
+      //       const index = imageUrls.indexOf(url);
+      //       if (index !== -1) {
+      //         currentImageIndex = index;
+      //         updateActiveItem(currentImageIndex);
+      //         // CABLES.patch.setVariable("imageUrl", imageUrls[currentImageIndex]);
+      //       }
+      //     }
+      //   });
+      //   console.log(imageUrls[currentImageIndex]);
+      // }
 
-      // Use Intersection Observer to detect when an image enters the viewport
-      const observer = new IntersectionObserver(handleIntersection, {
-        threshold: 0.5,
+      // // Use Intersection Observer to detect when an image enters the viewport
+      // const observer = new IntersectionObserver(handleIntersection, {
+      //   threshold: 0.5,
+      // });
+
+      // // Observe each image element
+      // imageUrls.forEach((url) => {
+      //   const container = document.createElement("div");
+      //   container.setAttribute("data-media", url); // Set a data attribute for each URL
+      //   container.style.height = "100vh"; // Ensure divs are the full height of the viewport
+      //   container.style.visibility = "hidden";
+      //   container.classList.add("galleryVoid");
+      //   document.body.appendChild(container);
+      //   observer.observe(container);
+      // });
+          /// Random position on grid
+
+      const usedPositions = new Set();
+      const numRows = 5;
+      const numCols = 5;
+
+      galleryImage.forEach((item) => {
+        
+        console.log(item);
+        let randomRow, randomCol;
+        do {
+          randomRow = Math.floor(Math.random() * numRows) + 1;
+          randomCol = Math.floor(Math.random() * numCols) + 1;
+        } while (usedPositions.has(`${randomRow}-${randomCol}`));
+
+        usedPositions.add(`${randomRow}-${randomCol}`);
+
+        item.style.gridRow = randomRow;
+        item.style.gridColumn = randomCol + 1;
       });
 
-      // Observe each image element
-      imageUrls.forEach((url) => {
-        const container = document.createElement("div");
-        container.setAttribute("data-media", url); // Set a data attribute for each URL
-        container.style.height = "100vh"; // Ensure divs are the full height of the viewport
-        container.style.visibility = "hidden";
-        container.classList.add("galleryVoid");
-        document.body.appendChild(container);
-        observer.observe(container);
-      });
+      // gridItems.forEach((item) => {
+      //   const depth = getRandomInt(-50, 50);
 
+      //   gsap.to(item, {
+      //     yPercent: () => {
+      //       return depth;
+      //     },
+      //     ease: "none",
+      //     scrollTrigger: {
+      //       trigger: "#workList",
+      //       scrub: 1,
+      //     },
+      //   });
+      // });
+
+      //
       const col1mask = document.getElementById("canvasMask3");
       const col2mask = document.getElementById("canvasMask4");
 
@@ -117,17 +153,17 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
 
     let sections = gsap.utils.toArray(".galleryelement");
 
-    gsap.to(sections, {
-      xPercent: -100 * (sections.length - 1),
-      ease: "none",
-      scrollTrigger: {
-        trigger: "#gallery",
-        pin: true,
-        scrub: 1,
-        snap: 1 / (sections.length - 1),
-        end: () => "+=" + document.querySelector("#gallery").offsetWidth,
-      },
-    });
+    // gsap.to(sections, {
+    //   xPercent: -100 * (sections.length - 1),
+    //   ease: "none",
+    //   scrollTrigger: {
+    //     trigger: "#gallery",
+    //     pin: true,
+    //     scrub: 1,
+    //     snap: 1 / (sections.length - 1),
+    //     end: () => "+=" + document.querySelector("#gallery").offsetWidth,
+    //   },
+    // });
 
     // VideoControls
 

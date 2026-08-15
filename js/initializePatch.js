@@ -93,6 +93,7 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
       stringTexture: "mediaDesign",
       workScroll: 0,
       aboutScroll: 0,
+      workPageScroll: 0,
       videoPlay: isPlaying,
       videoMuted: isMuted,
       videoVolume: videoVolume,
@@ -113,6 +114,10 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
       workPSR_mq3: [-1, -1, 0, 10, 90, 0, 0],
       workPSR_mq2: [0.5, 13, 0, 20, 200, -64, 0],
       workPSR_mq1: [0, -5, 0, 50, 180, 20, 20],
+
+      workExtraPSR_mq3: [-1, 4, 5, 5, 20, -20, 0],
+      // workExtraPSR_mq2: [0.5, 13, 0, 20, 200, -64, 0],
+      // workExtraPSR_mq1: [0, -5, 0, 50, 180, 20, 20],
 
       errorPSR_mq3: [-1, 0, 0, 3, 0, -90, 10],
       errorPSR_mq2: [0, 5, -2, 10, -40, 0, 0],
@@ -138,7 +143,7 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
   if (pageContext == "works") {
     textureOffset();
     CABLES.patch.setVariable("autoTransformSpeed", 0);
-    CABLES.patch.setVariable("mouseTransformSpeed", 0);
+    // CABLES.patch.setVariable("mouseTransformSpeed", 0);
   }
   if (pageContext == "index") {
     CABLES.patch.setVariable("videoPlay", 0);

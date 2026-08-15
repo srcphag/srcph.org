@@ -17,20 +17,14 @@
     display: none;
   }
 
-  nav.nav-menu a {
-    color: var(--black);
-  }
-
-  .srcshape {
-    z-index: 5;
-  }
   .canvasmask {
     background-color: #ffffff;
     z-index: 6;
     position: absolute;
+    position: fixed;
   }
   #canvasMask1 {
-    position: fixed;
+    
     height: var(--headerHeight);
     width: calc((var(--mainWidth) / 6) + var(--mainMargin));
     top: 0;
@@ -57,6 +51,25 @@
     background-color: transparent;
     position: fixed;
     z-index: 6;
+  }
+  /* #void{
+    height: 100vh;
+  } */
+  #extra{
+    /* height: 200vh; */
+    position: absolute;
+    z-index: 10;
+    top: 100vh;
+      bottom: 0px;
+      left: calc(var(--mainMargin) + var(--mainPadding));
+      right: var(--mainMargin);
+    /* background-color: red; */
+  }
+  #extra .w-dyn-list .w-dyn-items{
+      display: grid;
+      grid-template-columns: repeat(6, calc(100% / 6));
+
+
   }
   .infowrapper {
     background-color: transparent;
@@ -117,7 +130,6 @@
   }
 
   #background {
-    /* width: var(--mainWidth); */
     height: calc(100vh - var(--headerHeight));
     background-color: var(--bck1);
     position: fixed;
@@ -133,15 +145,11 @@
     position: relative;
     padding: 0 0 0 0;
     grid-area: 1/1;
-    /* margin: 50px 0 0 0; */
     filter: grayscale(100%);
   }
 
   #infoList {
     margin-top: 10px;
-  }
-  .infowrapper {
-    padding-top: var(--headerHeight);
   }
 
   main #description p {
@@ -166,7 +174,6 @@
     position: relative;
     width: 15px;
     height: 2px;
-    /* z-index: 4; */
     background-color: var(--black);
   }
 
@@ -220,7 +227,6 @@
   #playerControls {
     position: fixed;
     display: flex;
-
     align-items: center;
     justify-content: center;
     top: 0;
@@ -228,8 +234,6 @@
     bottom: 0;
     left: 0;
     margin: auto;
-    /* width: 25px; 
-    height: 40px;  */
     z-index: 10;
   }
   #playerControls div.magic-hover {

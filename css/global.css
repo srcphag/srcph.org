@@ -29,10 +29,8 @@
 }
 html {
   scroll-behavior: unset;
+  overflow-x: hidden;
 }
-/* .nocursor {
-  cursor: none;
-} */
 a:hover {
   cursor: pointer;
 }
@@ -52,18 +50,12 @@ a:hover {
   height: 100vh;
   z-index: 100;
 }
-html {
-  overflow-x: hidden;
-}
 
 body {
   margin: 0;
   background-color: var(--bck0);
   color: #fff;
   opacity: 0;
-  /* height: 100vh; */
-  /* min-width: 100vw;
-  max-width: 100vw; */
   overflow: hidden;
 }
 
@@ -139,7 +131,6 @@ ol {
 }
 
 #logo #logoPlayer {
-  /* transform: scale(0.8); */
   transform-origin: center left;
 }
 
@@ -163,7 +154,6 @@ nav a {
 }
 .w-nav-link.highlight {
   color: var(--black);
-  font-weight: var(--fRegular);
   text-decoration: underline;
   font-weight: var(--fBold);
 }

@@ -5,15 +5,14 @@ function patchFinishedLoading(patch) {
     "body",
     { opacity: 0 },
     { opacity: 1, duration: 0.5, delay: 0.05 },
-    "<"
+    "<",
   );
 
   if (pageContext == "index") {
-    
-    const paragraphs = document.querySelectorAll('#text1 p');
+    const paragraphs = document.querySelectorAll("#text1 p");
     pageLoad
-    .from("#text1 p", 1, { opacity:0, x: -25, stagger: 0.5 })
-    .from("#canvasMask3", { x: -25, delay: 0.2 });
+      .from("#text1 p", 1, { opacity: 0, x: -25, stagger: 0.5 })
+      .from("#canvasMask3", { x: -25, delay: 0.2 });
 
     ScrollTrigger.create({
       start: "top 50%",
@@ -87,7 +86,7 @@ function patchFinishedLoading(patch) {
 
     if (mq3.matches) {
       const navHeight = navBar.offsetHeight;
-      tl1.to("#logo", { translateY: "-50vh" }),
+      (tl1.to("#logo", { translateY: "-50vh" }),
         tl1.to("#text1", { translateY: "-70vh", opacity: 0 }, "<"),
         tl1.to("#canvasMask4", { translateY: "-70vh" }, "<"),
         tl1.to("#canvasMask3", { height: navHeight, left: 0 }, "<"),
@@ -95,17 +94,17 @@ function patchFinishedLoading(patch) {
         tl1.to("#deco2", { opacity: 0 }, "<"),
         tl1.to("#deco3", { opacity: 0 }, "<"),
         tl1.to("#backgroundMask2", { translateY: "-100vh" }, "<"),
-        tl1.to("#decoText1", { translateY: "-50vh" }, "<");
+        tl1.to("#decoText1", { translateY: "-50vh" }, "<"));
 
-      tl2.to("#about", { opacity: 1 }),
+      (tl2.to("#about", { opacity: 1 }),
         tl2.to("#backgroundMask1", { height: "50vh" }, "<"),
-        tl2.to("#backgroundMask3", { height: "100vh" }, "<30%");
+        tl2.to("#backgroundMask3", { height: "100vh" }, "<30%"));
 
-      tl3.fromTo(
+      (tl3.fromTo(
         "#curriculum",
         { opacity: 0, translateX: "-20px" },
         { opacity: 1, translateX: "0px" },
-        "<50%"
+        "<50%",
       ),
         tl3.to(".videojs-about", {
           keyframes: {
@@ -113,42 +112,42 @@ function patchFinishedLoading(patch) {
             ease: "none", // ease the entire keyframe block
           },
           duration: 0.5,
-        });
+        }));
 
-      tl3.fromTo(
+      (tl3.fromTo(
         "#textContact",
         { opacity: 0, translateX: "-20px" },
         { opacity: 1, translateX: "0px" },
-        "<"
+        "<",
       ),
         tl3.fromTo(
           "#deco4",
           { opacity: 0, translateX: "-20px" },
           { opacity: 1, translateX: "0px" },
-          "<50%"
+          "<50%",
         ),
         tl3.fromTo(
           "#deco5",
           { opacity: 0, translateX: "-20px" },
           { opacity: 1, translateX: "0px" },
-          "<80%"
-        );
+          "<80%",
+        ));
     }
 
     if (mq2.matches) {
-      tl4.to("#logo", { translateY: "-50vh" }),
+      (tl4.to("#logo", { translateY: "-50vh" }),
         tl4.to("#decoText1", { opacity: 0 }, "<"),
         tl4.to("#text1", { opacity: 0, translateY: "-50vh" }, "<"),
         tl4.to("#canvasMask4", { translateY: "-70vh" }, "<"),
         tl4.to("#canvasMask3", { height: "65px" }, "<"),
         tl4.to("#logoPlayer", { scale: "1" }, "<"),
-        tl4.to("#backgroundMask1", { height: 0 }, "<");
+        tl4.to("#backgroundMask1", { height: 0 }, "<"));
 
-      tl6.fromTo(
+      (tl6.fromTo(
         "#curriculum",
         { opacity: 0, translateX: "-20px" },
         { opacity: 1, translateX: "0px" },
-        "<"
+        "<",
       ),
         tl6.to(".videojs-about", {
           keyframes: {
@@ -156,38 +155,38 @@ function patchFinishedLoading(patch) {
             ease: "none", // ease the entire keyframe block
           },
           duration: 0.5,
-        });
+        }));
 
       imageElement = document.querySelector(".videojs-about");
       imageHeight = imageElement.offsetHeight;
 
       tl6.to("#canvasMask3", { height: `400px` }, "<");
 
-      tl3.fromTo(
+      (tl3.fromTo(
         "#textContact",
         { opacity: 0, translateX: "-20px" },
         { opacity: 1, translateX: "0px" },
-        "<"
+        "<",
       ),
         tl3.fromTo(
           "#deco4",
           { opacity: 0, translateX: "-20px" },
           { opacity: 1, translateX: "0px" },
-          "<50%"
+          "<50%",
         ),
         tl3.fromTo(
           "#deco5",
           { opacity: 0, translateX: "-20px" },
           { opacity: 1, translateX: "0px" },
-          "<80%"
-        );
+          "<80%",
+        ));
       // tl3.to("#text1", { opacity: 0 }, "<80%");
 
       tl2.fromTo("#backgroundMask2", { top: "100vh" }, { top: "0vh" }, "<");
     }
 
     if (mq1.matches) {
-      tl4.to("#logo", { translateY: "-48vh" }),
+      (tl4.to("#logo", { translateY: "-48vh" }),
         tl4.to("#text1", { opacity: 0 }, "-=1"),
         tl4.to("#decoText1", { opacity: 0 }, "<"),
         tl4.to("#deco1", { opacity: 0 }, "<"),
@@ -195,13 +194,13 @@ function patchFinishedLoading(patch) {
         tl4.to("#deco3", { opacity: 0 }, "<"),
         tl4.to("#logoPlayer", { scale: "1" }, "<"),
         tl4.to("#backgroundMask1", { translateX: "-100vw" }, "<"),
-        tl4.to("#canvasMask4", { height: "100vh" }, "<");
+        tl4.to("#canvasMask4", { height: "100vh" }, "<"));
 
-      tl5.fromTo(
+      (tl5.fromTo(
         "#curriculum",
         { opacity: 0, translateX: "-20px" },
         { opacity: 1, translateX: "0px" },
-        "<"
+        "<",
       ),
         tl5.to(".videojs-about", {
           keyframes: {
@@ -209,26 +208,26 @@ function patchFinishedLoading(patch) {
             ease: "none", // ease the entire keyframe block
           },
           duration: 0.5,
-        });
+        }));
 
-      tl3.fromTo(
+      (tl3.fromTo(
         "#textContact",
         { opacity: 0, translateX: "-20px" },
         { opacity: 1, translateX: "0px" },
-        "<"
+        "<",
       ),
         tl3.fromTo(
           "#deco4",
           { opacity: 0, translateX: "-20px" },
           { opacity: 1, translateX: "0px" },
-          "<50%"
+          "<50%",
         ),
         tl3.fromTo(
           "#deco5",
           { opacity: 0, translateX: "-20px" },
           { opacity: 1, translateX: "0px" },
-          "<80%"
-        );
+          "<80%",
+        ));
 
       // tl5.fromTo("#backgroundMask2", { right: "100vw" }, { right: "0" }, "<");
     }
@@ -268,7 +267,7 @@ function patchFinishedLoading(patch) {
 
     let currentIndex = 1;
     const workFields = Array.from(
-      document.getElementById("workFields").getElementsByTagName("li")
+      document.getElementById("workFields").getElementsByTagName("li"),
     ).map((li) => li.textContent);
     const decoText = document.getElementById("decoText1");
     decoText.textContent = workFields[0];
@@ -292,15 +291,15 @@ function patchFinishedLoading(patch) {
       .from("#description", 1, { x: -25, autoAlpha: 0 }, 1.2);
 
     if (mq3.matches) {
-      // const galleryVoidElement = document.querySelector(".galleryVoid");
-      // // Scroll to the position of the galleryVoidElement
-      // gsap.to(window, {
-      //   duration: 0.2,
-      //   scrollTo: {
-      //     y: galleryVoidElement,
-      //     offsetY: 0, // Optionally adjust the offset if needed
-      //   },
-      // });
+      ScrollTrigger.create({
+        start: "top top",
+        endTrigger: "#extra",
+        end: "bottom 50%",
+        onUpdate: (self) => {
+          console.log("workPageScroll progress:", self.progress);
+          handleScrollProgress(self.progress, "workPageScroll");
+        },
+      });
     }
   }
 }

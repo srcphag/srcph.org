@@ -7,6 +7,7 @@ const workElements = Array.from(document.querySelectorAll(".work"));
 const observerRoot = document.querySelector("#intersectionObserver");
 const srcShape = document.querySelector(".srcshape");
 const navBar = document.querySelector(".navbar");
+const galleryImage = document.querySelectorAll(".galleryimage");
 
 const mask1 = document.getElementById("canvasMask1");
 const mask2 = document.getElementById("canvasMask2");

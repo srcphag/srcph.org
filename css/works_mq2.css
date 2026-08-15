@@ -3,7 +3,6 @@
     body {
       font-size: var(--textSize0);
       font-weight: 200;
-      /* opacity: 0; */
     }
 
     main {
@@ -13,10 +12,6 @@
       grid-auto-flow: row;
       display: grid;
     }
-
-    /* .canvasmask {
-      display: none;
-    } */
 
     #canvasMask1 {
       height: var(--headerHeight);
@@ -67,7 +62,6 @@
       align-items: center;
       display: flex;
       margin-right: var(--mainMargin);
-      align-items: center;
     }
     nav.nav-menu a {
       padding: 0 8px;
@@ -92,6 +86,7 @@
       justify-content: space-between;
       width: unset;
       margin-left: unset;
+      pointer-events: all;
     }
     #controlsWrapper > div:nth-child(2) {
       padding-right: unset;
@@ -101,9 +96,6 @@
     }
     #playerControls {
       pointer-events: none;
-    }
-    #controlsWrapper {
-      pointer-events: all;
     }
   }
 }
