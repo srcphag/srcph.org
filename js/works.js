@@ -1,116 +1,144 @@
-// Creating a video element container firs
-const videoContainer = document.createElement("div");
-videoContainer.id = "videoContainer";
-
-// videoContainer.style.display = 'none';
-
 document.addEventListener("CABLES.jsLoaded", function (event) {
   if (pageContext == "works") {
     var cmsVideos = document.querySelectorAll('[data-vid="works"]');
     var cmsImages = document.querySelectorAll('[data-img="works"]');
     var imageUrls = [];
-    var imageAlt = [];
 
-    // Adding video links to imageUrls array at the beginning
-    cmsVideos.forEach(function (cmsVideo, index) {
-      imageUrls.unshift(cmsVideo.href);
-      imageAlt.unshift("video" + String(index));
-    });
-
-    // Adding image links to imageUrls array
-    cmsImages.forEach(function (cmsImage, index) {
-      imageUrls.push(cmsImage.src);
-      imageAlt.push("image" + String(index));
-    });
+    // Video links first (each unshifted to the front), then image links
+    cmsVideos.forEach((cmsVideo) => imageUrls.unshift(cmsVideo.href));
+    cmsImages.forEach((cmsImage) => imageUrls.push(cmsImage.src));
 
     CABLES.patch.setVariable("videoUrl", imageUrls[0]);
-    // console.log("videoUrl", imageUrls[0]);
+
+    // Setting players
+    const workVideos = document.querySelectorAll(".videojs-work");
+    const videoPlayers = new Map(); // observed target (container) → player
+
+    workVideos.forEach((videoElement) => {
+      const container = videoElement.closest(".video.w-embed");
+
+      // Use the container's dynamic id (unique per item via Webflow)
+      videoElement.id = container.id;
+
+      const player = videojs(videoElement, {
+        controls: false,
+        autoplay: false,
+        preload: "auto",
+        muted: true,
+        loop: true,
+      });
+
+      videoPlayers.set(container || videoElement, player);
+
+      // Per-item player controls when the gallery element enables them
+      const galleryItem = videoElement.closest(".galleryelement");
+
+      if (galleryItem?.getAttribute("player_controls") === "1") {
+        container.style.position = "relative";
+
+        const itemControls = document.createElement("div");
+        itemControls.className = "gallery-video-controls";
+        Object.assign(itemControls.style, {
+          position: "absolute",
+          bottom: "0px",
+          right: "0px",
+          display: "flex",
+          gap: "0px",
+          zIndex: "10",
+        });
+
+        const itemPlayButton = document.createElement("button");
+        itemPlayButton.textContent = player.paused()
+          ? "Play video"
+          : "Pause video";
+
+        const itemMuteButton = document.createElement("button");
+        itemMuteButton.textContent = player.muted() ? "Sound off" : "Sound on";
+
+        [itemPlayButton, itemMuteButton].forEach((button) => {
+          Object.assign(button.style, {
+            background: "var(--bck0)",
+            color: "var(--black)",
+            border: "none",
+            padding: "5px 10px",
+            cursor: "pointer",
+          });
+          itemControls.appendChild(button);
+        });
+
+        itemPlayButton.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          if (player.paused()) {
+            player.play();
+          } else {
+            player.pause();
+          }
+        });
+
+        itemMuteButton.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          player.muted(!player.muted());
+        });
+
+        // Keep labels in sync with playback (e.g. viewport auto play/pause)
+        player.on("play", () => (itemPlayButton.textContent = "Pause video"));
+        player.on("pause", () => (itemPlayButton.textContent = "Play video"));
+        player.on(
+          "volumechange",
+          () =>
+            (itemMuteButton.textContent = player.muted()
+              ? "Sound off"
+              : "Sound on")
+        );
+
+        container.appendChild(itemControls);
+      }
+    });
+
+    // Play videos when their container enters the viewport, pause when they leave
+    function onVideoVisible(target) {
+      const player = videoPlayers.get(target);
+      player.muted(true);
+      player.play().catch(console.error);
+    }
+
+    function onVideoHidden(target) {
+      videoPlayers.get(target).pause();
+    }
+
+    const videoObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            onVideoVisible(entry.target);
+          } else {
+            onVideoHidden(entry.target);
+          }
+        });
+      },
+      {
+        root: null,
+        threshold: 0.1,
+      }
+    );
+
+    videoPlayers.forEach((player, target) => videoObserver.observe(target));
 
     if (mq3.matches) {
-      // const imageListContainer = document.getElementById("imageList");
-
-      // let currentImageIndex = 0;
-
-      // function updateActiveItem(index) {
-      //   const listItems = imageListContainer.querySelectorAll("li");
-      //   listItems.forEach((item) => {
-      //     item.classList.remove("active");
-      //   });
-      //   listItems[index].classList.add("active");
-      // }
-
-      // function showNextImage() {
-      //   currentImageIndex = (currentImageIndex + 1) % imageUrls.length;
-      //   updateActiveItem(currentImageIndex);
-      //   // console.log(imageUrls[currentImageIndex]);
-      //   CABLES.patch.setVariable("imageUrl", imageUrls[currentImageIndex]);
-      // }
-
-      // // Iterate through the arrays and create list items
-      // for (let i = 0; i < imageUrls.length; i++) {
-      //   const listItem = document.createElement("li");
-
-      //   const anchor = document.createElement("a");
-      //   anchor.setAttribute("data-url", imageUrls[i]); // Store URL in a custom attribute
-      //   // anchor.textContent = imageAlt[i];
-
-      //   listItem.appendChild(anchor);
-      //   imageListContainer.appendChild(listItem);
-
-      //   anchor.addEventListener("click", (event) => {
-      //     event.preventDefault();
-      //     const clickedImageUrl = event.target.getAttribute("data-url"); // Retrieve URL from custom attribute
-      //     currentImageIndex = imageUrls.indexOf(clickedImageUrl);
-      //     updateActiveItem(currentImageIndex);
-      //     CABLES.patch.setVariable("imageUrl", clickedImageUrl);
-      //   });
-      // }
-      // updateActiveItem(currentImageIndex);
-
-      // // Function to handle intersection observer callback
-      // function handleIntersection(entries) {
-      //   entries.forEach((entry) => {
-      //     if (entry.isIntersecting) {
-      //       const url = entry.target.dataset.media;
-      //       const index = imageUrls.indexOf(url);
-      //       if (index !== -1) {
-      //         currentImageIndex = index;
-      //         updateActiveItem(currentImageIndex);
-      //         // CABLES.patch.setVariable("imageUrl", imageUrls[currentImageIndex]);
-      //       }
-      //     }
-      //   });
-      //   console.log(imageUrls[currentImageIndex]);
-      // }
-
-      // // Use Intersection Observer to detect when an image enters the viewport
-      // const observer = new IntersectionObserver(handleIntersection, {
-      //   threshold: 0.5,
-      // });
-
-      // // Observe each image element
-      // imageUrls.forEach((url) => {
-      //   const container = document.createElement("div");
-      //   container.setAttribute("data-media", url); // Set a data attribute for each URL
-      //   container.style.height = "100vh"; // Ensure divs are the full height of the viewport
-      //   container.style.visibility = "hidden";
-      //   container.classList.add("galleryVoid");
-      //   document.body.appendChild(container);
-      //   observer.observe(container);
-      // });
-          /// Random position on grid
-
+      /// Random position on grid
       const usedPositions = new Set();
       const numRows = 5;
       const numCols = 5;
 
       galleryImage.forEach((item) => {
-        
-        console.log(item);
         let randomRow, randomCol;
         do {
-          randomRow = Math.floor(Math.random() * numRows) + 1;
-          randomCol = Math.floor(Math.random() * numCols) + 1;
+          randomRow = getRandomInt(1, numRows);
+          randomCol = getRandomInt(1, numCols);
         } while (usedPositions.has(`${randomRow}-${randomCol}`));
 
         usedPositions.add(`${randomRow}-${randomCol}`);
@@ -119,30 +147,139 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
         item.style.gridColumn = randomCol + 1;
       });
 
-      // gridItems.forEach((item) => {
-      //   const depth = getRandomInt(-50, 50);
+      /// Each gallery element in its own row, at a random column
+      const galleryElements = document.querySelectorAll(".galleryelement");
+      // The full-height grid container — #gallery's box is constrained by
+      // top/bottom and doesn't wrap the rows, so it can't be the trigger
+      const galleryGrid = galleryElements[0]?.parentElement;
+      let prevCols = [];
 
-      //   gsap.to(item, {
-      //     yPercent: () => {
-      //       return depth;
-      //     },
-      //     ease: "none",
-      //     scrollTrigger: {
-      //       trigger: "#workList",
-      //       scrub: 1,
-      //     },
-      //   });
-      // });
+      galleryElements.forEach((item, index) => {
+        const sizeId = item.getAttribute("size_id");
+        const hasDescription = item.querySelector(".description") !== null;
 
-      //
-      const col1mask = document.getElementById("canvasMask3");
-      const col2mask = document.getElementById("canvasMask4");
+        // size_id = 1 → spans 2 columns, starting on column 1, 2 or 3
+        // size_id = 0 → any of the 4 columns (spans 2 with a description)
+        const span = sizeId === "1" || hasDescription ? 2 : 1;
+        const maxCol = 4 - span + 1;
 
-      col1mask.style.height = String(getElementPosition("#info").bottom) + "px";
-      col2mask.style.height =
-        String(getElementPosition("#description").bottom) + "px";
+        // Avoid the predecessor's columns so no two adjacent rows align
+        let candidates = [];
+        for (let c = 1; c <= maxCol; c++) {
+          const cols = span === 2 ? [c, c + 1] : [c];
+          if (!cols.some((col) => prevCols.includes(col))) candidates.push(c);
+        }
+        if (candidates.length === 0) {
+          candidates = Array.from({ length: maxCol }, (_, i) => i + 1);
+        }
+
+        const startCol =
+          candidates[getRandomInt(0, candidates.length - 1)];
+
+        item.style.gridRow = index + 1;
+        item.style.gridColumn = `${startCol} / span ${span}`;
+
+        prevCols = span === 2 ? [startCol, startCol + 1] : [startCol];
+
+        // Scroll-linked depth
+        gsap.to(item, {
+          yPercent: getRandomInt(-50, 50),
+          ease: "none",
+          scrollTrigger: {
+            trigger: galleryGrid,
+            scrub: 1,
+          },
+        });
+      });
+
+      /// Sticky scroll — shared smooth-jump tween
+      const jumpTo = (target) => {
+        if (isScrolling) return; // Prevent multiple calls while scrolling
+
+        isScrolling = true;
+
+        gsap.to(window, {
+          duration: 1.5,
+          scrollTo: { y: target, offsetY: 0, autoKill: false },
+          ease: "power3.out",
+          onComplete: () => {
+            isScrolling = false;
+          },
+        });
+      };
+
+      /// Sticky scroll — smooth jump to the gallery after 20% is scrolled
+      ScrollTrigger.create({
+        trigger: "#gallery",
+        start: "top 80%", // gallery sits at 100vh → fires after ~20vh of scrolling
+        onEnter: () => jumpTo("#gallery"),
+      });
+
+      /// Jump back to the top once the gallery is 20% out of the viewport
+      ScrollTrigger.create({
+        trigger: "#gallery",
+        start: "top 20%",
+        onLeaveBack: () => jumpTo(0),
+      });
+
+      /// Flicker the player controls (same animation as .videojs-about on index)
+      const playerControlsEl = document.getElementById("playerControls");
+
+      const controlsFlicker = gsap.to(playerControlsEl, {
+        keyframes: {
+          opacity: [0, 1, 0, 1, 0, 0, 1, 0, 1], // ends hidden
+          ease: "none",
+        },
+        duration: 0.25,
+        paused: true,
+        // The element has a CSS opacity transition (for the mouse/touch
+        // show-hide) that would smooth GSAP's per-frame updates into a
+        // slow fade — suspend it while the flicker runs
+        onStart: () => {
+          playerControlsEl.style.transition = "none";
+          playerControlsEl.style.visibility = "visible";
+        },
+        onComplete: () => {
+          playerControlsEl.style.transition = "opacity 0.3s ease";
+          playerControlsEl.style.transition = "none";
+          playerControlsEl.style.visibility = "visible";
+        },
+      });
+
+      ScrollTrigger.create({
+        trigger: "#gallery",
+        start: "top 85%", // fires after ~10vh of scrolling
+        onEnter: () => controlsFlicker.restart(),
+        onLeaveBack: () => controlsFlicker.restart(), // viewport near the top again
+      });
     }
+
+    /// mq2 — gallery positioning (3 columns, one element per row)
     if (mq2.matches) {
+      const tabletGalleryElements = document.querySelectorAll(".galleryelement");
+
+      tabletGalleryElements.forEach((item, index) => {
+        const hasDescription = item.querySelector(".description") !== null;
+        const hasBig = item.hasAttribute("big");
+
+        let startCol;
+        if (hasDescription) {
+          // description items are always placed in the first column
+          startCol = 1;
+        } else if (hasBig) {
+          // big items can only sit in the first or second column
+          startCol = getRandomInt(1, 2);
+        } else {
+          // everything else may use any of the 3 columns
+          startCol = getRandomInt(1, 3);
+        }
+
+        item.style.gridRow = index + 1;
+        item.style.gridColumn = `${startCol} / span 1`;
+      });
+    }
+
+    if (mq3.matches || mq2.matches) {
       const col1mask = document.getElementById("canvasMask3");
       const col2mask = document.getElementById("canvasMask4");
 
@@ -150,27 +287,8 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
       col2mask.style.height =
         String(getElementPosition("#description").bottom) + "px";
     }
-
-    let sections = gsap.utils.toArray(".galleryelement");
-
-    // gsap.to(sections, {
-    //   xPercent: -100 * (sections.length - 1),
-    //   ease: "none",
-    //   scrollTrigger: {
-    //     trigger: "#gallery",
-    //     pin: true,
-    //     scrub: 1,
-    //     snap: 1 / (sections.length - 1),
-    //     end: () => "+=" + document.querySelector("#gallery").offsetWidth,
-    //   },
-    // });
 
     // VideoControls
-
-    const playSVG =
-      "url(https://cdn.prod.website-files.com/630ca11296e48c2b70f1013e/671cd597249480e4a65bb82c_controlPlay.svg)";
-    const pauseSVG =
-      "url(https://cdn.prod.website-files.com/630ca11296e48c2b70f1013e/671cd5b679fab7c290b04404_controlPause.svg)";
 
     const playText = "Play video";
     const pauseText = "Pause video";
@@ -188,14 +306,11 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
     function setVideoPlay() {
       isPlaying = !isPlaying;
 
-      // Change the SVG
       playButton.innerHTML = isPlaying ? pauseText : playText;
 
-      // Set the CABLES variable
       CABLES.patch.setVariable("videoPlay", isPlaying ? 1 : 0);
       CABLES.patch.setVariable("videoMuted", isMuted ? 1 : 0);
       CABLES.patch.setVariable("videoVolume", 1);
-      // console.log("Play");
     }
 
     playButton.addEventListener("click", () => {
@@ -204,24 +319,19 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
 
     mutedButton.addEventListener("click", () => {
       isMuted = !isMuted;
-      // Change the SVG
       mutedButton.innerHTML = isMuted ? soundOff : soundOn;
 
-      // Set the CABLES variable
       CABLES.patch.setVariable("videoMuted", isMuted ? 1 : 0);
       CABLES.patch.setVariable("videoVolume", isMuted ? 0 : 1);
-      // console.log(isPlaying);
     });
 
     fullscreenButton.addEventListener("click", () => {
       isFullscreen = !isFullscreen;
 
-      // Change the SVG
       fullscreenButton.innerHTML = isFullscreen ? fullScreenOff : fullScreenOn;
       srcShape.style.mixBlendMode = isFullscreen ? "normal" : "multiply";
       srcShape.style.zIndex = isFullscreen ? 10 : 5;
 
-      // Set the CABLES variable
       CABLES.patch.setVariable("videoFullscreen", isFullscreen ? 1 : 0);
       if (mq1.matches && isFullscreen == true) {
         document.getElementById("playerControls").style.top = "100vh";
@@ -229,7 +339,6 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
       if (mq1.matches && isFullscreen == false) {
         document.getElementById("playerControls").style.top = "60vh";
       }
-      // console.log(isPlaying);
     });
 
     // Mouse controls for larger screens
@@ -252,10 +361,9 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
         }
       }
 
-      playerControls.style.transition = "opacity 0.3s ease";
+      // playerControls.style.transition = "opacity 0.3s ease";
       playerControls.style.opacity = "0";
 
-      // Mouse event listeners
       document.addEventListener("mousemove", showControls);
 
       playerControls.addEventListener("mouseenter", () => {
@@ -303,10 +411,9 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
       updateControlsVisibility();
 
       playButton.addEventListener("click", () => {
-        setVideoPlay();
         updateControlsVisibility();
       });
-      // Touch event listeners
+
       document.addEventListener("touchstart", () => {
         isTouching = true;
         showTouchControls();
@@ -317,22 +424,5 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
         updateControlsVisibility();
       });
     }
-
-    const mainElement = document.querySelector("main");
-    let workPSR_mq1_A = CABLES.patch.getVar("workPSR_mq1").getValue();
-    let workPSR_mq1_B = workPSR_mq1_A.slice(); // Creates a shallow copy
-    workPSR_mq1_B[1] += 5;
-
-    // mainElement.addEventListener("scroll", () => {
-    //   const scrollPercentage =
-    //     mainElement.scrollTop /
-    //     (mainElement.scrollHeight - mainElement.clientHeight);
-
-    //   CABLES.patch.setVariable(
-    //     "workPSR_mq1",
-    //     lerpArrays(workPSR_mq1_A, workPSR_mq1_B, scrollPercentage)
-    //   );
-
-    // });
   }
 });

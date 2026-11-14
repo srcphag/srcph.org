@@ -1,4 +1,4 @@
-//Set context
+// Set context
 const currentURL = window.location.href;
 var pageContext;
 const path =
@@ -12,23 +12,20 @@ if (currentURL.includes("works")) {
 } else {
   pageContext = "index";
 }
-console.log(pageContext);
-var bodyElement = document.body;
-bodyElement.setAttribute("context", pageContext);
+
+document.body.setAttribute("context", pageContext);
 
 function textureOffset() {
   if (mq1.matches) {
-    CABLES.patch.setVariable("imageTextureOffset", [0, -0.15]);
+    CABLES.patch.setVariable("videoTextureOffsetY", 0);
   }
   if (mq2.matches) {
-    CABLES.patch.setVariable("imageTextureOffset", [0, -0.4]);
+    CABLES.patch.setVariable("videoTextureOffsetY", 0.5);
   }
   if (mq3.matches) {
-    CABLES.patch.setVariable("imageTextureOffset", [0, 0]);
+    CABLES.patch.setVariable("videoTextureOffsetY", 0.25);
   }
 }
-
-//initialize Patch
 
 function showError(errId, errMsg) {}
 
@@ -40,42 +37,28 @@ function patchInitialized(patch) {
   const rect = canvas.getBoundingClientRect();
 
   document.addEventListener("mousemove", (event) => {
-    // Step 1: Calculate coordinates relative to the canvas
+    // Coordinates relative to the canvas
     const canvasX = event.clientX - rect.left;
     const canvasY = event.clientY - rect.top;
 
-    // Step 2: Normalize to a 0-1 range
-    var normX = canvasX / rect.width;
-    var normY = canvasY / rect.height;
+    // Normalize to a 0-1 range
+    const normX = canvasX / rect.width;
+    const normY = canvasY / rect.height;
 
-    // Step 3: Convert to -1 to 1 range (and flip y for WebGL, if needed)
-    var ndcX = normX * 2 - 1;
-    var ndcY = -(normY * 2 - 1); // flip y-axis
+    // Convert to -1 to 1 range (and flip y for WebGL)
+    const ndcX = normX * 2 - 1;
+    const ndcY = -(normY * 2 - 1);
 
     CABLES.patch.setVariable("mouseX", ndcX);
     CABLES.patch.setVariable("mouseY", ndcY);
-    //   console.log({
-    //     canvasX,
-    //     canvasY,
-    //     normX,
-    //     normY,
-    //     ndcX,
-    //     ndcY,
-    //   });
   });
 
   initCount++;
-  // console.log(`Patch Initialized - Attempt: ${initCount}`, {
-  //   timestamp: new Date().toISOString(),
-  // });
-
-  // Mark as initialized
   hasInitialized = true;
-
-  // Your actual initialization logic here
-  // ...
 }
 
+// NOTE: overridden by the same-named function in animations.js (loaded later),
+// which is the one actually passed to the patch on CABLES.jsLoaded.
 function patchFinishedLoading(patch) {
   const videoPlay = CABLES.patch.getVar("playerStatus");
   const videoFullscreen = CABLES.patch.getVar("videoFullscreen");
@@ -112,12 +95,14 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
       indexAboutPSR_mq1: [0, 8, 0, 15, 20, 20, 10],
       // WorkPage
       workPSR_mq3: [-1, -1, 0, 10, 90, 0, 0],
-      workPSR_mq2: [0.5, 13, 0, 20, 200, -64, 0],
+      workPSR_mq2: [-1, -1, 0, 10, 90, 0, 0],
       workPSR_mq1: [0, -5, 0, 50, 180, 20, 20],
 
-      workExtraPSR_mq3: [-1, 4, 5, 5, 20, -20, 0],
-      // workExtraPSR_mq2: [0.5, 13, 0, 20, 200, -64, 0],
-      // workExtraPSR_mq1: [0, -5, 0, 50, 180, 20, 20],
+      workExtraPSR_mq3: [-2, -1, -2, 3, 20, 70, 0],
+      workExtraPSR_mq2: [-2, -1, -2, 3, 20, 70, 0],
+      workExtraPSR_mq1: [-2, -1, -2, 3, 20, 70, 0],
+
+      workPageTextureProjection: 3,
 
       errorPSR_mq3: [-1, 0, 0, 3, 0, -90, 10],
       errorPSR_mq2: [0, 5, -2, 10, -40, 0, 0],
@@ -143,18 +128,8 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
   if (pageContext == "works") {
     textureOffset();
     CABLES.patch.setVariable("autoTransformSpeed", 0);
-    // CABLES.patch.setVariable("mouseTransformSpeed", 0);
   }
   if (pageContext == "index") {
     CABLES.patch.setVariable("videoPlay", 0);
   }
 });
-
-// disable rubberband effect on mobile devices
-// document.getElementById("glcanvas").addEventListener(
-//   "touchmove",
-//   (e) => {
-//     e.preventDefault();
-//   },
-//   false
-// );

@@ -1,52 +1,67 @@
 document.addEventListener("CABLES.jsLoaded", function (event) {
-  /////////// Context Index ///////////
-
   if (pageContext == "index") {
-    const usedPositions = new Set();
+    const createTriggers = (triggers) =>
+      triggers.forEach((t) => ScrollTrigger.create(t));
 
-    /// Setting players
-
-    var playerWork = videojs(document.querySelector(".videojs-work"), {
+    // Setting players
+    videojs(document.querySelector(".videojs-work"), {
       controls: false,
       autoplay: false,
       preload: "auto",
       muted: true,
     });
 
-    var playerAbout = videojs(document.querySelector(".videojs-about"), {
+    const aboutPlayer = videojs(document.querySelector(".videojs-about"), {
       controls: false,
-      autoplay: true,
+      autoplay: false,
       preload: "auto",
       muted: true,
       loop: true,
     });
 
-    /// Random position on grid
+    // Play the about video only while it is in the viewport
+    const aboutVideoObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            aboutPlayer.muted(true);
+            aboutPlayer.play().catch(console.error);
+          } else {
+            aboutPlayer.pause();
+          }
+        });
+      },
+      {
+        root: null,
+        threshold: 0.1,
+      }
+    );
+
+    aboutVideoObserver.observe(document.querySelector(".videojs-about"));
+
+    /// mq3
 
     if (mq3.matches) {
+      const usedPositions = new Set();
       const numRows = 5;
       const numCols = 5;
 
       gridItems.forEach((item) => {
+        // Random position on grid
         let randomRow, randomCol;
         do {
-          randomRow = Math.floor(Math.random() * numRows) + 1;
-          randomCol = Math.floor(Math.random() * numCols) + 1;
+          randomRow = getRandomInt(1, numRows);
+          randomCol = getRandomInt(1, numCols);
         } while (usedPositions.has(`${randomRow}-${randomCol}`));
 
         usedPositions.add(`${randomRow}-${randomCol}`);
 
         item.style.gridRow = randomRow;
         item.style.gridColumn = randomCol + 1;
-      });
 
-      gridItems.forEach((item) => {
-        const depth = getRandomInt(-50, 50);
-
+        // Scroll-linked depth
         gsap.to(item, {
-          yPercent: () => {
-            return depth;
-          },
+          yPercent: getRandomInt(-50, 50),
           ease: "none",
           scrollTrigger: {
             trigger: "#workList",
@@ -55,54 +70,35 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
         });
       });
 
-      //
-
       workElements.forEach((container) => {
         const videoElement = container.querySelector(".videojs-work");
-        if (!videoElement) return; // Skip if no video found in this container
-
-        const player = videojs(videoElement);
-
-        container.addEventListener("mouseenter", function () {
-          player.muted(true);
-          player.play();
-          // console.log("Mouseover:", container.getAttribute("Project"));
-          mainColor = container.getAttribute("color");
-          CABLES.patch.setVariable("mainColorHex", mainColor);
-          // console.log(mainColor);
-        });
-
-        container.addEventListener("mouseleave", function () {
-          player.muted(true);
-          player.pause();
-          // console.log("Mouseleave:", container.getAttribute("Project"));
-          mainColor = "#0d0d0d";
-          CABLES.patch.setVariable("mainColorHex", mainColor);
-        });
-
-        // Optionally, if you want autoplay:
-        // player.ready(function () {
-        //   player.play();
-        // });
-      });
-
-      workElements.forEach((container) => {
         const descriptionElement = container.querySelector(".description");
         const titleElement = container.querySelector(".title");
 
         const tl = gsap.timeline({ paused: true });
-
         tl.fromTo(
           descriptionElement,
-          {
-            x: -30,
-          },
-          {
-            x: 0,
-            duration: 0.2,
-            ease: "power2.out",
-          }
+          { x: -30 },
+          { x: 0, duration: 0.2, ease: "power2.out" }
         );
+
+        if (videoElement) {
+          const player = videojs(videoElement);
+
+          container.addEventListener("mouseenter", function () {
+            player.muted(true);
+            player.play();
+            mainColor = container.getAttribute("color");
+            CABLES.patch.setVariable("mainColorHex", mainColor);
+          });
+
+          container.addEventListener("mouseleave", function () {
+            player.muted(true);
+            player.pause();
+            mainColor = "#0d0d0d";
+            CABLES.patch.setVariable("mainColorHex", mainColor);
+          });
+        }
 
         container.addEventListener("mouseenter", (event) => {
           container.classList.add("workIndex");
@@ -120,30 +116,23 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
       });
     }
 
-    //// mq2
+    /// mq2
 
     if (mq2.matches) {
       const numCols = 3;
       const indexRows = createOrderedRandomArray(gridItems.length, 1, 2);
 
       gridItems.forEach((item, index) => {
-        // Sequential column assignment
-        const column = (index % numCols) + 1;
-
-        // Random vertical offset within maxOffset
-        const verticalOffset = getRandomInt(-20, 200);
-
-        // Apply positions and offset
-        item.style.gridColumn = column;
+        item.style.gridColumn = (index % numCols) + 1;
         item.style.gridRow = indexRows[index];
-        item.style.transform = `translateY(${verticalOffset}px)`;
+        item.style.transform = `translateY(${getRandomInt(-20, 200)}px)`;
       });
     }
 
     /// Scroll control
 
     if (mq3.matches) {
-      const triggers = [
+      createTriggers([
         {
           trigger: "#work",
           start: "top 30%",
@@ -179,139 +168,56 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
           onEnterBack: () => {
             CABLES.patch.setVariable("stringTexture", "works");
           },
-          onLeaveBack: () => {
-            // CABLES.patch.setVariable("stringTexture", "mediaDesign");
-            // CABLES.patch.setVariable("mainColor", "#121212");
-          },
         },
-        // Add more triggers here if needed
-      ];
-
-      // Loop through the triggers array to create ScrollTriggers
-      triggers.forEach(
-        ({
-          trigger,
-          start,
-          end,
-          onEnter,
-          onLeave,
-          onEnterBack,
-          onLeaveBack,
-        }) => {
-          ScrollTrigger.create({
-            trigger,
-            start,
-            end,
-            onEnter,
-            onLeave,
-            onEnterBack,
-            onLeaveBack,
-          });
-        }
-      );
+      ]);
     }
 
     if (mq1.matches || mq2.matches) {
-      let triggers;
-      let marginBottom;
+      const isMobile = mq1.matches;
+      const marginBottom = vhToPx(isMobile ? 10 : 35);
 
-      if (mq2.matches) {
-        triggers = [
-          {
-            trigger: "#work",
-            start: "top 50%",
-            end: "bottom 50%",
-            onEnter: () => {
-              scrollToSectionGsap("work", 1, "65");
-              highlightMenuItem(1);
-            },
-            onLeave: () => {
-              scrollToSectionGsap("about", 1);
-              highlightMenuItem(2);
-            },
-            onEnterBack: () => {
-              // scrollToLastWork(".work", 1, "65");
-              highlightMenuItem(1);
-            },
-            onLeaveBack: () => {
-              scrollToSectionGsap("header", 1);
-              highlightMenuItem(0);
-            },
+      const triggers = [
+        {
+          trigger: "#work",
+          start: isMobile ? "top 90%" : "top 50%",
+          end: isMobile ? "bottom 60%" : "bottom 50%",
+          onEnter: () => {
+            scrollToSectionGsap("work", 1, "65");
+            highlightMenuItem(1);
           },
-
-          {
-            trigger: "#workList",
-            start: "bottom 10%",
-            end: "bottom bottom",
-            onEnter: () => {
-              //   console.log("onEnter");
-              CABLES.patch.setVariable("stringTexture", "works");
-            },
-            onLeave: () => {
-              CABLES.patch.setVariable("stringTexture", "about");
-              CABLES.patch.setVariable("mainColorHex", "#0b00ff");
-            },
-            onEnterBack: () => {
-              CABLES.patch.setVariable("stringTexture", "works");
-            },
-            onLeaveBack: () => {
-              CABLES.patch.setVariable("stringTexture", "mediaDesign");
-              CABLES.patch.setVariable("mainColor", "#141414");
-            },
+          onLeave: () => {
+            scrollToSectionGsap("about", 1);
+            highlightMenuItem(2);
           },
-          // Add more triggers here if needed
-        ];
-        marginBottom = vhToPx(35);
-      }
-
-      if (mq1.matches) {
-        triggers = [
-          {
-            trigger: "#work",
-            start: "top 90%",
-            end: "bottom 60%",
-            onEnter: () => {
-              scrollToSectionGsap("work", 1, "65");
-              highlightMenuItem(1);
-            },
-            onLeave: () => {
-              scrollToSectionGsap("about", 1);
-              highlightMenuItem(2);
-            },
-            onEnterBack: () => {
-              scrollToLastWork(".work", 1, "65");
-              highlightMenuItem(1);
-            },
-            onLeaveBack: () => {
-              scrollToSectionGsap("header", 1);
-              highlightMenuItem(0);
-            },
+          onEnterBack: () => {
+            if (isMobile) scrollToLastWork(".work", 1, "65");
+            highlightMenuItem(1);
           },
-
-          {
-            trigger: "#workList",
-            start: "bottom 10%",
-            end: "bottom bottom",
-            onEnter: () => {
-              //   console.log("onEnter");
-              CABLES.patch.setVariable("stringTexture", "works");
-            },
-            onLeave: () => {
-              CABLES.patch.setVariable("stringTexture", "about");
-              CABLES.patch.setVariable("mainColorHex", "#0b00ff");
-            },
-            onEnterBack: () => {
-              CABLES.patch.setVariable("stringTexture", "works");
-            },
-            onLeaveBack: () => {
-              CABLES.patch.setVariable("stringTexture", "mediaDesign");
-              CABLES.patch.setVariable("mainColor", "#141414");
-            },
+          onLeaveBack: () => {
+            scrollToSectionGsap("header", 1);
+            highlightMenuItem(0);
           },
-          // Add more triggers here if needed
-        ];
-        marginBottom = vhToPx(10);
-      }
+        },
+        {
+          trigger: "#workList",
+          start: "bottom 10%",
+          end: "bottom bottom",
+          onEnter: () => {
+            CABLES.patch.setVariable("stringTexture", "works");
+          },
+          onLeave: () => {
+            CABLES.patch.setVariable("stringTexture", "about");
+            CABLES.patch.setVariable("mainColorHex", "#0b00ff");
+          },
+          onEnterBack: () => {
+            CABLES.patch.setVariable("stringTexture", "works");
+          },
+          onLeaveBack: () => {
+            CABLES.patch.setVariable("stringTexture", "mediaDesign");
+            CABLES.patch.setVariable("mainColor", "#141414");
+          },
+        },
+      ];
 
       function onElementVisible(element) {
         element.classList.add("visibleImage", "active");
@@ -357,25 +263,8 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
       const observer = new IntersectionObserver(
         (entries, observer) => {
           entries.forEach((entry) => {
-            // Calculate visible area
-            const visibleArea =
-              entry.intersectionRect.width * entry.intersectionRect.height;
-            const totalArea =
-              entry.boundingClientRect.width * entry.boundingClientRect.height;
-            const visiblePercentage = Math.round(entry.intersectionRatio * 100);
-
             if (entry.isIntersecting) {
               onElementVisible(entry.target);
-              // console.log("Element is visible:", {
-              //   element: entry.target,
-              //   visibleArea: Math.round(visibleArea) + "px²",
-              //   totalArea: Math.round(totalArea) + "px²",
-              //   visiblePercentage: visiblePercentage + "%",
-              //   dimensions: {
-              //     width: Math.round(entry.intersectionRect.width) + "px",
-              //     height: Math.round(entry.intersectionRect.height) + "px",
-              //   },
-              // });
             } else {
               onElementHidden(entry.target);
             }
@@ -384,36 +273,15 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
         {
           root: null,
           rootMargin: `65px 0px -${marginBottom}px 0px`,
-          threshold: 1.0, // Multiple thresholds for more detailed tracking
+          threshold: 1.0,
         }
       );
 
-      // Find all elements with class 'work' and observe them
       workElements.forEach((element) => {
         observer.observe(element);
       });
 
-      triggers.forEach(
-        ({
-          trigger,
-          start,
-          end,
-          onEnter,
-          onLeave,
-          onEnterBack,
-          onLeaveBack,
-        }) => {
-          ScrollTrigger.create({
-            trigger,
-            start,
-            end,
-            onEnter,
-            onLeave,
-            onEnterBack,
-            onLeaveBack,
-          });
-        }
-      );
+      createTriggers(triggers);
     }
 
     // Mask positions
@@ -422,14 +290,12 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
       mask4.style.height = String(getElementPosition("#text1").bottom) + "px";
 
       // Track position of the mask
-
       function updatePosition() {
         if (workList && mask1 && mask5) {
           const rect = workList.getBoundingClientRect();
-          var WorkHeight = workList.offsetHeight;
 
           mask1.style.transform = `translateY(${rect.top + window.scrollY}px)`;
-          mask1.style.height = `${WorkHeight}px`;
+          mask1.style.height = `${workList.offsetHeight}px`;
           mask5.style.transform = `translateY(${
             rect.bottom + window.scrollY
           }px)`;
@@ -441,19 +307,17 @@ document.addEventListener("CABLES.jsLoaded", function (event) {
       });
     }
 
-    if (mq2.matches) {
-      const deco3 = document.getElementById("deco3");
-      deco3.style.top = String(getElementPosition("#text1").bottom) + "px";
+    if (mq2.matches || mq1.matches) {
+      document.getElementById("deco3").style.top =
+        String(getElementPosition("#text1").bottom) + "px";
+    }
 
+    if (mq2.matches) {
       const backgroundMask1 = document.getElementById("backgroundMask1");
       const text1Position = document
         .querySelector("#text1")
         .getBoundingClientRect();
       backgroundMask1.style.height = `calc(100% - ${text1Position.bottom}px + 65px)`;
-    }
-    if (mq1.matches) {
-      const deco3 = document.getElementById("deco3");
-      deco3.style.top = String(getElementPosition("#text1").bottom) + "px";
     }
   }
 });

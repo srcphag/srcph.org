@@ -165,8 +165,22 @@ nav a {
 .vjs-modal-dialog-content {
   display: none !important;
 }
-.vjs-poster img {
-  object-fit: unset !important;
+/* Posters fit the square box by height, centered — same geometry as the
+   video element itself (.videojs-work video). Portrait posters get side
+   gaps; landscape posters fill the square and are side-cropped (never
+   distorted). .video-js prefix outspecifies video-js.css, which loads
+   after main.css. v8.16 renders the poster as .vjs-poster div >
+   picture.vjs-poster > img (no background-image is used). */
+.video-js .vjs-poster {
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+.video-js .vjs-poster img {
+  flex-shrink: 0; /* keep wide posters from being squashed by flexbox */
+  width: auto;
+  height: 100%;
+  max-width: none;
 }
 
 @keyframes scrollTextAnim {
